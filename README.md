@@ -18,7 +18,19 @@ pip install -r requirements.txt
 copy .env.example .env
 ```
 
-3. Start the app:
+3. Initialize the database:
+
+```bash
+python -m app.database.create
+```
+
+4. Run Alembic migrations:
+
+```bash
+python -m alembic upgrade head
+```
+
+5. Start the app:
 
 ```bash
 python -m uvicorn app.main:app --reload
