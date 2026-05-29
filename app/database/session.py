@@ -2,12 +2,11 @@
 
 from typing import Generator
 from sqlalchemy.orm import sessionmaker, Session
-from app.database.connection import engine
+from app.database.connection import get_engine
 
 
-# Create session factory
+# Create session factory without binding during import so migration imports stay lightweight.
 SessionLocal = sessionmaker(
-    bind=engine,
     class_=Session,
     expire_on_commit=False,
     autoflush=False,
@@ -30,7 +29,7 @@ def get_db_session() -> Generator[Session, None, None]:
         def read_items(db: Session = Depends(get_db_session)):
             return db.query(Item).all()
     """
-    session = SessionLocal()
+    session = SessionLocal(bind=get_engine())
     try:
         yield session
     finally:
@@ -48,3 +47,4 @@ def get_db() -> Generator[Session, None, None]:
 
 
 __all__ = ["SessionLocal", "get_db_session", "get_db"]
+

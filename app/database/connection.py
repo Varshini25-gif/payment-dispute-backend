@@ -1,11 +1,14 @@
 """PostgreSQL connection setup and SQLAlchemy engine configuration."""
 
+from functools import lru_cache
+
 from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.pool import QueuePool
 from app.core.config import settings
 
 
+@lru_cache(maxsize=1)
 def create_db_engine() -> Engine:
     """
     Create and configure SQLAlchemy engine with PostgreSQL connection.
@@ -37,6 +40,11 @@ def create_db_engine() -> Engine:
     return engine
 
 
+def get_engine() -> Engine:
+    """Return the cached SQLAlchemy engine."""
+    return create_db_engine()
+
+
 def _register_connection_events(engine: Engine) -> None:
     """
     Register SQLAlchemy event listeners for connection management.
@@ -60,8 +68,5 @@ def _register_connection_events(engine: Engine) -> None:
         pass  # Add logging if needed
 
 
-# Create engine instance
-engine = create_db_engine()
+__all__ = ["create_db_engine", "get_engine"]
 
-
-__all__ = ["engine", "create_db_engine"]
