@@ -2,6 +2,7 @@ import logging
 
 from fastapi import FastAPI
 from app.api.health import router as health_router
+from app.api.routes.disputes import router as disputes_router
 from app.core.logging import configure_logging
 from app.core.config import settings
 
@@ -15,6 +16,7 @@ app = FastAPI(
 )
 
 app.include_router(health_router, prefix="/api")
+app.include_router(disputes_router, prefix="/api")
 
 
 @app.on_event("startup")
