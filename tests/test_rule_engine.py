@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from app.services.rule_engine.engine import RuleEngine, decide_routing
 from app.services.rule_engine.loader import load_rules_from_yaml
 from app.services.rule_engine.parser import parse_rules, Rule
 from app.services.rule_engine.validator import RuleValidationError, validate_rule_syntax
@@ -79,6 +80,55 @@ def test_parse_rules_returns_rule_objects() -> None:
     assert parsed_rules[0].conditions["field"] == "status"
 
 
+def test_rule_engine_matches_amount_range_dispute_type_and_payer_id() -> None:
+    raw_rules = [
+        {
+            "id": "route-high-risk",
+            "description": "Route high-risk disputes",
+            "conditions": {
+                "all_of": [
+                    {"field": "amount", "operator": "in", "value": [100, 200]},
+                    {"field": "type", "operator": "equals", "value": "chargeback"},
+                    {"field": "payer_id", "operator": "in", "value": ["payer-123", "payer-456"]},
+                ]
+            },
+            "actions": [{"type": "route", "target": "special-investigation"}],
+        }
+    ]
+
+    rules = parse_rules(raw_rules)
+    engine = RuleEngine(rules)
+
+    dispute_context = {"amount": 150, "type": "chargeback", "payer_id": "payer-123"}
+    matches = engine.get_matching_rules(dispute_context)
+
+    assert len(matches) == 1
+    assert matches[0].rule_id == "route-high-risk"
+    assert matches[0].actions[0]["target"] == "special-investigation"
+
+
+def test_decide_routing_returns_first_match() -> None:
+    raw_rules = [
+        {
+            "id": "route-fraud",
+            "conditions": {"field": "type", "operator": "equals", "value": "fraud"},
+            "actions": [{"type": "route", "target": "fraud-team"}],
+        },
+        {
+            "id": "route-other",
+            "conditions": {"field": "type", "operator": "equals", "value": "other"},
+            "actions": [{"type": "route", "target": "default-team"}],
+        },
+    ]
+
+    rules = parse_rules(raw_rules)
+    decision = decide_routing(rules, {"type": "fraud"})
+
+    assert decision is not None
+    assert decision.rule_id == "route-fraud"
+    assert decision.actions[0]["target"] == "fraud-team"
+
+
 def test_parse_rules_reports_invalid_rule() -> None:
     raw_rules = [
         {
@@ -90,3 +140,66 @@ def test_parse_rules_reports_invalid_rule() -> None:
 
     with pytest.raises(RuleValidationError, match="operator"):
         parse_rules(raw_rules)
+
+
+def test_rule_engine_matches_amount_ranges() -> None:
+    rule = Rule(
+        id="amount-range",
+        description="Route high value disputes",
+        conditions={
+            "all_of": [
+                {"field": "amount", "operator": "gte", "value": 500},
+                {"field": "amount", "operator": "lte", "value": 2000},
+            ]
+        },
+        actions=[{"type": "route", "parameters": {"queue": "high_value"}}],
+    )
+
+    from app.services.rule_engine.engine import RuleEngine
+
+    engine = RuleEngine([rule])
+    match = engine.decide({"amount": 1500, "type": "chargeback", "customer_id": "payer-1"})
+
+    assert match is not None
+    assert match.rule_id == "amount-range"
+    assert match.actions[0]["type"] == "route"
+    assert match.actions[0]["parameters"]["queue"] == "high_value"
+
+
+def test_rule_engine_matches_dispute_type_and_payer_id() -> None:
+    rule = Rule(
+        id="priority-dispute",
+        description="Route disputes for VIP payer and chargebacks",
+        conditions={
+            "all_of": [
+                {"field": "type", "operator": "equals", "value": "chargeback"},
+                {"field": "customer_id", "operator": "in", "value": ["payer-1", "payer-2"]},
+            ]
+        },
+        actions=[{"type": "route", "parameters": {"queue": "vip_chargebacks"}}],
+    )
+
+    from app.services.rule_engine.engine import RuleEngine
+
+    engine = RuleEngine([rule])
+    match = engine.decide({"amount": 1200, "type": "chargeback", "customer_id": "payer-1"})
+
+    assert match is not None
+    assert match.rule_id == "priority-dispute"
+    assert match.actions[0]["parameters"]["queue"] == "vip_chargebacks"
+
+
+def test_rule_engine_returns_no_match_when_conditions_fail() -> None:
+    rule = Rule(
+        id="low-value",
+        description="Only match low value disputes",
+        conditions={"field": "amount", "operator": "lt", "value": 100},
+        actions=[{"type": "route", "parameters": {"queue": "low_value"}}],
+    )
+
+    from app.services.rule_engine.engine import RuleEngine
+
+    engine = RuleEngine([rule])
+    match = engine.decide({"amount": 200, "type": "chargeback", "customer_id": "payer-1"})
+
+    assert match is None
