@@ -44,3 +44,18 @@ class JiraClient:
 
     def create_issue(self, fields: Dict[str, Any]) -> Dict[str, Any]:
         return self._request("POST", "/rest/api/3/issue", json_body={"fields": fields})
+
+    def transition_issue(
+        self,
+        issue_key: str,
+        transition_id: str,
+        fields: Optional[Dict[str, Any]] = None,
+        comment: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        payload: Dict[str, Any] = {"transition": {"id": transition_id}}
+        if fields:
+            payload["fields"] = fields
+        if comment:
+            payload["update"] = {"comment": [{"add": {"body": comment}}]}
+
+        return self._request("POST", f"/rest/api/3/issue/{issue_key}/transitions", json_body=payload)
