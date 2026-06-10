@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from app.database.models import Dispute
 from app.database.models.enums import DisputeStatus, DisputeType
 from app.database.session import get_db
+from app.services.dispute.routing_service import DisputeRoutingService
 
 router = APIRouter(tags=["Disputes"])
 
@@ -100,6 +101,9 @@ async def create_dispute(
         if "external_id" not in str(exc).lower():
             detail = "Unable to create dispute."
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
+
+    DisputeRoutingService().route_dispute(dispute, db=db)
+
     return dispute
 
 
