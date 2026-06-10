@@ -17,6 +17,12 @@ class Settings(BaseSettings):
     PORT: int = 8000
     LOG_LEVEL: str = "INFO"
 
+    # Jira configuration
+    JIRA_BASE_URL: str = ""
+    JIRA_EMAIL: str = ""
+    JIRA_API_TOKEN: str = ""
+    JIRA_PROJECT_KEY: str = "PAY"
+
     # Database configuration
     DATABASE_URL: str = "postgresql://user:password@localhost:5432/payment_dispute_db"
     DB_ECHO: bool = False
