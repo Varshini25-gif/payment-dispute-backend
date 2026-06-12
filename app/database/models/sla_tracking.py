@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Enum as SAEnum, ForeignKey, Index, String, Text
+from sqlalchemy import Boolean, Column, DateTime, Enum as SAEnum, ForeignKey, Index, Numeric, String, Text
 from sqlalchemy.orm import relationship
 
 from app.database.models.base import Base, GUID
@@ -14,9 +14,14 @@ class SlaTracking(Base):
     sla_due_at = Column(DateTime(timezone=True), nullable=False)
     sla_status = Column(SAEnum(SlaStatus, native_enum=False), nullable=False, default=SlaStatus.ON_TRACK)
     breached_at = Column(DateTime(timezone=True), nullable=True)
+    breach_detected = Column(Boolean, nullable=False, default=False)
+    escalation_flag = Column(Boolean, nullable=False, default=False)
+    escalation_reason = Column(String(255), nullable=True)
+    response_hours = Column(Numeric(8, 2), nullable=True, default=0)
+    resolution_hours = Column(Numeric(8, 2), nullable=True, default=0)
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
-    updated_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     dispute = relationship("Dispute", back_populates="sla_tracking")
 
