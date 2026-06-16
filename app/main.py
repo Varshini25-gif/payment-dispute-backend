@@ -6,6 +6,7 @@ from app.api.routes.disputes import router as disputes_router
 from app.api.routes.sla import router as sla_router
 from app.core.logging import configure_logging
 from app.core.config import settings
+from app.core.scheduler import shutdown_scheduler, start_scheduler
 
 configure_logging()
 logger = logging.getLogger("app")
@@ -24,8 +25,10 @@ app.include_router(sla_router, prefix="/api")
 @app.on_event("startup")
 async def startup_event() -> None:
     logger.info("Starting %s", settings.APP_NAME)
+    start_scheduler()
 
 
 @app.on_event("shutdown")
 async def shutdown_event() -> None:
+    shutdown_scheduler()
     logger.info("Shutting down %s", settings.APP_NAME)

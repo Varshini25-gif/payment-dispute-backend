@@ -33,6 +33,17 @@ class Settings(BaseSettings):
     DB_POOL_PRE_PING: bool = True
     DB_FUTURE: bool = True
 
+    # Background worker scheduling
+    SLA_MONITOR_INTERVAL_SECONDS: int = 300
+    CLEANUP_INTERVAL_SECONDS: int = 3600
+    ROUTING_SYNC_INTERVAL_SECONDS: int = 300
+    STALE_DISPUTE_SCAN_INTERVAL_SECONDS: int = 900
+    ROUTING_RETRY_DELAY_MINUTES: int = 15
+    ROUTING_SYNC_DELAY_MINUTES: int = 60
+    CLEANUP_DISPUTE_RETENTION_DAYS: int = 30
+    CLEANUP_LOG_RETENTION_DAYS: int = 30
+    STALE_DISPUTE_AGE_HOURS: int = 24
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
