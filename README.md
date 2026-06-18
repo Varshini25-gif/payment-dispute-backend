@@ -39,3 +39,20 @@ python -m uvicorn app.main:app --reload
 ## API
 
 - `GET /api/health` - health check endpoint
+
+## Confluence Integration
+
+Configure these environment variables before publishing case summaries:
+
+- `CONFLUENCE_BASE_URL` - Atlassian site URL (example: `https://your-org.atlassian.net`)
+- `CONFLUENCE_EMAIL` - account email used for Confluence API access
+- `CONFLUENCE_API_TOKEN` - Atlassian API token
+- `CONFLUENCE_SPACE_KEY` - Confluence space key where pages are created
+- `CONFLUENCE_PARENT_PAGE_ID` - optional default parent page ID for new summaries
+
+Confluence API endpoints:
+
+- `POST /api/confluence/disputes/{dispute_id}/publish` - publish a dispute case summary
+- `GET /api/confluence/disputes/{dispute_id}/posts` - list all publish attempts/pages
+- `GET /api/confluence/disputes/{dispute_id}/publish-status` - get latest publish status
+- `GET /api/confluence/posts/{post_id}` - fetch a Confluence post record

@@ -23,6 +23,13 @@ class Settings(BaseSettings):
     JIRA_API_TOKEN: str = ""
     JIRA_PROJECT_KEY: str = "PAY"
 
+    # Confluence configuration
+    CONFLUENCE_BASE_URL: str = ""
+    CONFLUENCE_EMAIL: str = ""
+    CONFLUENCE_API_TOKEN: str = ""
+    CONFLUENCE_SPACE_KEY: str = ""
+    CONFLUENCE_PARENT_PAGE_ID: str = ""
+
     # Database configuration
     DATABASE_URL: str = "postgresql://user:password@localhost:5432/payment_dispute_db"
     DB_ECHO: bool = False
