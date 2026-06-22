@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     HOST: str = "127.0.0.1"
     PORT: int = 8000
     LOG_LEVEL: str = "INFO"
+    LOG_JSON: bool = True
 
     # Jira configuration
     JIRA_BASE_URL: str = ""

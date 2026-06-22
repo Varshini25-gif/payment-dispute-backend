@@ -62,11 +62,6 @@ def _register_connection_events(engine: Engine) -> None:
             cursor.execute("PRAGMA foreign_keys=ON")
             cursor.close()
     
-    @event.listens_for(Engine, "pool_connect")
-    def receive_pool_connect(dbapi_conn, connection_record):
-        """Log pool connection events."""
-        pass  # Add logging if needed
-
 
 __all__ = ["create_db_engine", "get_engine"]
 

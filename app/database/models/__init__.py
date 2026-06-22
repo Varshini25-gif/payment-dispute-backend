@@ -1,4 +1,5 @@
 from app.database.models.audit_log import AuditLog
+from app.database.models.api_request_log import APIRequestLog
 from app.database.models.confluence_post import ConfluencePost
 from app.database.models.dispute import Dispute
 from app.database.models.jira_issue import JiraIssue
@@ -20,6 +21,7 @@ __all__ = [
     "Base",
     "GUID",
     "AuditLog",
+    "APIRequestLog",
     "ConfluencePost",
     "Dispute",
     "JiraIssue",

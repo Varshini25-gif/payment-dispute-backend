@@ -1,6 +1,7 @@
 """Database initialization and management functions."""
 
 from app.database.connection import get_engine
+from app.database import models  # noqa: F401 - ensure model metadata is registered
 from app.database.models.base import Base
 
 

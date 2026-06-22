@@ -8,6 +8,9 @@ from app.api.routes.sla import router as sla_router
 from app.core.logging import configure_logging
 from app.core.config import settings
 from app.core.scheduler import shutdown_scheduler, start_scheduler
+from app.middleware.audit_middleware import AuditMiddleware
+from app.middleware.exception_handler import register_exception_handlers
+from app.middleware.request_logger import RequestLoggerMiddleware
 
 configure_logging()
 logger = logging.getLogger("app")
@@ -17,6 +20,10 @@ app = FastAPI(
     version=settings.APP_VERSION,
     description="Payment dispute backend service",
 )
+
+app.add_middleware(RequestLoggerMiddleware)
+app.add_middleware(AuditMiddleware)
+register_exception_handlers(app)
 
 app.include_router(health_router, prefix="/api")
 app.include_router(disputes_router, prefix="/api")
