@@ -52,6 +52,24 @@ class Settings(BaseSettings):
     CLEANUP_LOG_RETENTION_DAYS: int = 30
     STALE_DISPUTE_AGE_HOURS: int = 24
 
+    # JWT and Authentication configuration
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    
+    # Security configuration
+    ALLOW_ORIGINS: list = ["http://localhost:3000", "http://localhost:8080"]
+    ALLOW_CREDENTIALS: bool = True
+    ALLOW_METHODS: list = ["*"]
+    ALLOW_HEADERS: list = ["*"]
+    
+    # Password policy
+    MIN_PASSWORD_LENGTH: int = 8
+    REQUIRE_SPECIAL_CHAR: bool = True
+    REQUIRE_NUMBER: bool = True
+    REQUIRE_UPPERCASE: bool = True
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
