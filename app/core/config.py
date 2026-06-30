@@ -31,6 +31,15 @@ class Settings(BaseSettings):
     CONFLUENCE_SPACE_KEY: str = ""
     CONFLUENCE_PARENT_PAGE_ID: str = ""
 
+    # Integration reliability configuration
+    INTEGRATION_RETRY_ATTEMPTS: int = 3
+    INTEGRATION_RETRY_BASE_DELAY_SECONDS: float = 0.3
+    INTEGRATION_RETRY_MAX_DELAY_SECONDS: float = 2.0
+    INTEGRATION_RECOVERY_WINDOW_SECONDS: int = 30
+    INTEGRATION_FAILURE_THRESHOLD: int = 3
+    JIRA_TIMEOUT_SECONDS: int = 10
+    CONFLUENCE_TIMEOUT_SECONDS: int = 15
+
     # Database configuration
     DATABASE_URL: str = "postgresql://user:password@localhost:5432/payment_dispute_db"
     DB_ECHO: bool = False

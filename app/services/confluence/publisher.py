@@ -10,10 +10,13 @@ from sqlalchemy.orm import Session
 from app.database.models import ConfluencePost, Dispute
 from app.services.confluence.client import ConfluenceClient
 from app.services.confluence.html_builder import build_page_title, build_resolution_html
+from app.utils.error_responses import IntegrationServiceError
 
 
 class ConfluencePublishError(Exception):
-    pass
+    def __init__(self, message: str, status_code: int = 502) -> None:
+        super().__init__(message)
+        self.status_code = status_code
 
 
 class ConfluencePublisher:
@@ -68,6 +71,12 @@ class ConfluencePublisher:
             db.commit()
             db.refresh(post)
             return post
+        except IntegrationServiceError as exc:
+            post.publish_status = "failed"
+            post.failure_reason = str(exc)
+            db.commit()
+            db.refresh(post)
+            raise ConfluencePublishError(str(exc), status_code=exc.status_code) from exc
         except Exception as exc:  # noqa: BLE001
             post.publish_status = "failed"
             post.failure_reason = str(exc)
