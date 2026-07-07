@@ -1,0 +1,41 @@
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: payment-dispute-backend
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8000
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/payment_dispute_db
+      DB_STARTUP_MAX_ATTEMPTS: 40
+      DB_STARTUP_DELAY_SECONDS: 2
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    container_name: payment-dispute-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: payment_dispute_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - payment_dispute_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d payment_dispute_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  payment_dispute_db_data:

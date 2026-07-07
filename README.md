@@ -36,6 +36,44 @@ python -m alembic upgrade head
 python -m uvicorn app.main:app --reload
 ```
 
+## Docker Setup
+
+1. Create a local environment file:
+
+```bash
+copy .env.example .env
+```
+
+2. Build and start backend + PostgreSQL:
+
+```bash
+docker compose -f docker/docker-compose.yml up --build -d
+```
+
+Or use the helper script (Windows PowerShell):
+
+```powershell
+./scripts/docker-up.ps1
+```
+
+3. Verify containers:
+
+```bash
+docker compose -f docker/docker-compose.yml ps
+```
+
+4. Stop and remove containers:
+
+```bash
+docker compose -f docker/docker-compose.yml down
+```
+
+Or use:
+
+```powershell
+./scripts/docker-down.ps1
+```
+
 ## API
 
 - `GET /api/health` - health check endpoint

@@ -318,6 +318,39 @@ Password must contain at least one special character
 MyPassword123!
 Secure@Pass2024
 Admin#2024Secure
+
+---
+
+### 🔴 Issue: "docker is not recognized as the name of a cmdlet"
+
+**Error Message:**
+```powershell
+docker : The term 'docker' is not recognized as the name of a cmdlet
+```
+
+**Cause:** Docker Desktop is not installed, or terminal PATH was not refreshed after installation.
+
+**Solutions:**
+
+**1. Install Docker Desktop**
+```powershell
+winget install -e --id Docker.DockerDesktop --accept-source-agreements --accept-package-agreements
+```
+
+**2. Restart terminal (or sign out/in) and verify Docker**
+```powershell
+./scripts/docker-check.ps1
+```
+
+**3. Start containers using script**
+```powershell
+./scripts/docker-up.ps1
+```
+
+**4. If daemon is not reachable**
+- Open Docker Desktop and wait until status shows running.
+- Re-run `./scripts/docker-check.ps1`.
+
 Test@Password456
 ```
 
