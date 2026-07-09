@@ -14,12 +14,21 @@ from app.database.session import SessionLocal
 logger = logging.getLogger("app.middleware.audit")
 
 
+def _should_capture_request_body(path: str, method: str) -> bool:
+    if method not in {"POST", "PUT", "PATCH"}:
+        return False
+
+    # Avoid persisting credentials or tokens from auth and token endpoints.
+    sensitive_path_tokens = ("/auth", "/login", "/token", "/password")
+    return not any(token in path.lower() for token in sensitive_path_tokens)
+
+
 class AuditMiddleware(BaseHTTPMiddleware):
     """Persist API request traces to the database for auditing."""
 
     async def dispatch(self, request: Request, call_next) -> Response:
         started = time.perf_counter()
-        request_body = (await request.body()).decode("utf-8", errors="replace")
+        raw_request_body = (await request.body()).decode("utf-8", errors="replace")
 
         response = await call_next(request)
 
@@ -45,7 +54,11 @@ class AuditMiddleware(BaseHTTPMiddleware):
             client_ip=client_ip,
             user_agent=request.headers.get("User-Agent"),
             actor=actor,
-            request_body=request_body[:4000] if request_body else None,
+            request_body=(
+                raw_request_body[:4000]
+                if raw_request_body and _should_capture_request_body(request.url.path, request.method)
+                else None
+            ),
             error_detail=getattr(request.state, "error_detail", None),
             metadata_json=json.dumps(metadata, default=str),
         )

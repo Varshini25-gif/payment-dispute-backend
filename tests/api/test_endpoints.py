@@ -14,14 +14,15 @@ class TestHealthEndpoint:
         """Test health endpoint returns 200 with ok status."""
         response = client.get("/api/health")
         assert response.status_code == 200
-        assert response.json()["status"] == "ok"
-        assert response.json()["service"] == "payment-dispute-backend"
+        data = response.json()
+        assert data["status"] in ["ok", "degraded"]
+        assert data["service"] == "payment-dispute-backend"
     
     def test_health_endpoint_has_timestamp(self) -> None:
         """Test health endpoint includes timestamp."""
         response = client.get("/api/health")
         data = response.json()
-        assert "timestamp" in data or "checked_at" in data or "time" in data.keys()
+        assert "timestamp" in data
     
     def test_health_endpoint_json_valid(self) -> None:
         """Test health endpoint returns valid JSON."""

@@ -1,5 +1,5 @@
 import os
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,6 +10,12 @@ def get_env(name: str, default: str = "") -> str:
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
     APP_NAME: str = "payment-dispute-backend"
     APP_VERSION: str = "0.1.0"
     ENVIRONMENT: str = "development"
@@ -17,6 +23,7 @@ class Settings(BaseSettings):
     PORT: int = 8000
     LOG_LEVEL: str = "INFO"
     LOG_JSON: bool = True
+    SLOW_REQUEST_THRESHOLD_MS: int = 1500
 
     # Jira configuration
     JIRA_BASE_URL: str = ""
@@ -49,6 +56,7 @@ class Settings(BaseSettings):
     DB_POOL_RECYCLE: int = 3600
     DB_POOL_PRE_PING: bool = True
     DB_FUTURE: bool = True
+    HEALTH_DB_CHECK_ENABLED: bool = True
 
     # Background worker scheduling
     SLA_MONITOR_INTERVAL_SECONDS: int = 300
@@ -63,6 +71,7 @@ class Settings(BaseSettings):
 
     # JWT and Authentication configuration
     SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
+    ENCRYPTION_KEY: str = os.getenv("ENCRYPTION_KEY", "")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
@@ -78,11 +87,6 @@ class Settings(BaseSettings):
     REQUIRE_SPECIAL_CHAR: bool = True
     REQUIRE_NUMBER: bool = True
     REQUIRE_UPPERCASE: bool = True
-
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-
 
 settings = Settings()
 

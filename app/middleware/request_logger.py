@@ -6,6 +6,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
+from app.core.config import settings
 from app.core.logging import clear_request_log_context, set_request_log_context
 
 logger = logging.getLogger("app.middleware.request_logger")
@@ -71,6 +72,19 @@ class RequestLoggerMiddleware(BaseHTTPMiddleware):
                 "client_ip": client_ip,
             },
         )
+
+        if duration_ms >= settings.SLOW_REQUEST_THRESHOLD_MS:
+            logger.warning(
+                "Slow request detected",
+                extra={
+                    "method": request.method,
+                    "path": request.url.path,
+                    "status_code": response.status_code,
+                    "duration_ms": duration_ms,
+                    "client_ip": client_ip,
+                    "threshold_ms": settings.SLOW_REQUEST_THRESHOLD_MS,
+                },
+            )
 
         clear_request_log_context()
         return response

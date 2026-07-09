@@ -43,7 +43,7 @@ def get_db() -> Generator[Session, None, None]:
     Yields:
         Session: SQLAlchemy database session
     """
-    return get_db_session()
+    yield from get_db_session()
 
 
 __all__ = ["SessionLocal", "get_db_session", "get_db"]

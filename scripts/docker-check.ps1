@@ -23,6 +23,9 @@ docker compose version
 
 try {
     docker info | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "docker info returned a non-zero exit code."
+    }
     Write-Host "Docker daemon is running." -ForegroundColor Green
 }
 catch {

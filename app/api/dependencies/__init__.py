@@ -6,7 +6,7 @@ from typing import Optional, Annotated
 import logging
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError
 
 from app.core.auth import AuthService, TokenManager
@@ -15,6 +15,7 @@ from app.core.permissions import PermissionChecker, Permission, Role
 logger = logging.getLogger(__name__)
 
 security = HTTPBearer()
+optional_security = HTTPBearer(auto_error=False)
 
 
 class CurrentUser:
@@ -42,7 +43,7 @@ class CurrentUser:
 
 
 async def get_current_user(
-    credentials: HTTPAuthCredentials = Depends(security)
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ) -> CurrentUser:
     """
     Get the current authenticated user from the JWT token.
@@ -89,7 +90,7 @@ async def get_current_user(
 
 
 async def get_optional_user(
-    credentials: Optional[HTTPAuthCredentials] = Depends(security)
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(optional_security)
 ) -> Optional[CurrentUser]:
     """
     Get the current user if authenticated, otherwise None.

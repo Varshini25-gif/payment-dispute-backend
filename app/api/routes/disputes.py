@@ -120,16 +120,22 @@ async def list_disputes(
     page_size: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
 ) -> DisputeListResponse:
+    if min_amount is not None and max_amount is not None and min_amount > max_amount:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="min_amount cannot be greater than max_amount.",
+        )
+
     filters = _apply_filters(status, type_, customer_id, external_id, min_amount, max_amount, currency)
     query = select(Dispute).where(*filters).order_by(Dispute.created_at.desc())
-    total = db.scalar(select(func.count()).select_from(Dispute).where(*filters))
+    total = int(db.scalar(select(func.count()).select_from(Dispute).where(*filters)) or 0)
     offset = (page - 1) * page_size
     disputes = db.scalars(query.offset(offset).limit(page_size)).all()
 
     return DisputeListResponse(
         page=page,
         page_size=page_size,
-        total=total or 0,
+        total=total,
         items=disputes,
     )
 

@@ -31,4 +31,7 @@ class Dispute(Base):
         Index("ix_dispute_status", "status"),
         Index("ix_dispute_type", "type"),
         Index("ix_dispute_created_at", "created_at"),
+        Index("ix_dispute_status_created_at", "status", "created_at"),
+        Index("ix_dispute_customer_created_at", "customer_id", "created_at"),
+        Index("ix_dispute_currency_created_at", "currency", "created_at"),
     )
