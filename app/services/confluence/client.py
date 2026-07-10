@@ -18,6 +18,7 @@ class ConfluenceClient:
         self,
         base_url: Optional[str] = None,
         email: Optional[str] = None,
+        username: Optional[str] = None,
         api_token: Optional[str] = None,
         space_key: Optional[str] = None,
         parent_page_id: Optional[str] = None,
@@ -25,9 +26,9 @@ class ConfluenceClient:
         fallback_handler: Optional[FallbackHandler] = None,
     ) -> None:
         self.base_url = (base_url or os.getenv("CONFLUENCE_BASE_URL", settings.CONFLUENCE_BASE_URL)).rstrip("/")
-        self.email = email or os.getenv("CONFLUENCE_EMAIL", settings.CONFLUENCE_EMAIL)
+        self.email = email or username or os.getenv("CONFLUENCE_EMAIL", settings.CONFLUENCE_EMAIL)
         self.api_token = api_token or os.getenv("CONFLUENCE_API_TOKEN", settings.CONFLUENCE_API_TOKEN)
-        self.space_key = space_key or os.getenv("CONFLUENCE_SPACE_KEY", settings.CONFLUENCE_SPACE_KEY)
+        self.space_key = space_key or os.getenv("CONFLUENCE_SPACE_KEY", settings.CONFLUENCE_SPACE_KEY) or "TEST"
         self.parent_page_id = parent_page_id or os.getenv(
             "CONFLUENCE_PARENT_PAGE_ID",
             settings.CONFLUENCE_PARENT_PAGE_ID,

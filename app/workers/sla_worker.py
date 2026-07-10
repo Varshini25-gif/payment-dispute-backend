@@ -16,6 +16,12 @@ logger = logging.getLogger("app.workers.sla_worker")
 class SlaMonitorWorker:
     """Worker that scans disputes and persists SLA tracking state."""
 
+    def run(self) -> None:
+        self.scan_and_update_sla()
+
+    def check_sla(self) -> None:
+        self.scan_and_update_sla()
+
     def scan_and_update_sla(self) -> None:
         logger.info("Starting SLA monitor job")
 
@@ -48,3 +54,8 @@ class SlaMonitorWorker:
                     logger.exception("Failed to update SLA tracking for dispute=%s", dispute.external_id)
 
         logger.info("SLA monitor job completed. Disputes scanned=%d", updated)
+
+
+# Backward-compatible alias kept for older imports/tests.
+class SLAWorker(SlaMonitorWorker):
+    pass

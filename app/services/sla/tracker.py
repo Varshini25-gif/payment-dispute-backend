@@ -79,4 +79,15 @@ class SlaTracker:
             "breach_detected": breach["breached"],
             "sla_status": breach["status"],
             "escalate": escalation,
+            "response_time_hours": metrics["response_hours"],
+            "sla_hours_remaining": (
+                round(max(0.0, (sla_due_at - (resolved_at or datetime.now(timezone.utc))).total_seconds() / 3600), 2)
+                if sla_due_at is not None and not breach["breached"]
+                else None
+            ),
+            "sla_hours_exceeded": (
+                round(max(0.0, ((resolved_at or datetime.now(timezone.utc)) - sla_due_at).total_seconds() / 3600), 2)
+                if sla_due_at is not None and breach["breached"]
+                else None
+            ),
         }

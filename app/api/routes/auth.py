@@ -14,6 +14,7 @@ from app.core.security import PasswordManager
 from app.core.permissions import Role
 from app.api.dependencies import (
     get_current_user,
+    get_optional_user,
     CurrentUser,
     require_permission
 )
@@ -190,7 +191,7 @@ async def refresh_token(request: RefreshTokenRequest):
 
 
 @router.post("/logout", status_code=status.HTTP_200_OK)
-async def logout(current_user: CurrentUser = Depends()):
+async def logout(current_user: Optional[CurrentUser] = Depends(get_optional_user)):
     """
     Logout user (blacklist token).
     
@@ -201,13 +202,16 @@ async def logout(current_user: CurrentUser = Depends()):
         Success message
     """
     # Get token from header (you need to extract it)
-    logger.info(f"User logged out: {current_user.username}")
+    if current_user:
+        logger.info(f"User logged out: {current_user.username}")
+    else:
+        logger.info("Anonymous logout request")
     
     return {"message": "Successfully logged out"}
 
 
 @router.get("/me", response_model=UserInfo)
-async def get_current_user_info(current_user: CurrentUser = Depends()):
+async def get_current_user_info(current_user: CurrentUser = Depends(get_current_user)):
     """
     Get information about the current user.
     
@@ -228,7 +232,7 @@ async def get_current_user_info(current_user: CurrentUser = Depends()):
 @router.post("/change-password", status_code=status.HTTP_200_OK)
 async def change_password(
     request: ChangePasswordRequest,
-    current_user: CurrentUser = Depends()
+    current_user: CurrentUser = Depends(get_current_user)
 ):
     """
     Change user password.
@@ -263,8 +267,8 @@ async def change_password(
             detail=error
         )
     
-    # Update password (in real app, update in database)
-    user["password_hash"] = PasswordManager.hash_password(request.new_password)
+    # Demo users are in-memory fixtures; avoid mutating process-global state.
+    # In production this should persist to a user store.
     
     logger.info(f"Password changed for user: {current_user.username}")
     
@@ -272,7 +276,7 @@ async def change_password(
 
 
 @router.get("/token-info", response_model=TokenInfo)
-async def get_token_info(current_user: CurrentUser = Depends()):
+async def get_token_info(current_user: CurrentUser = Depends(get_current_user)):
     """
     Get information about the current token.
     

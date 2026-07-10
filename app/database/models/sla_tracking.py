@@ -29,3 +29,23 @@ class SlaTracking(Base):
         Index("ix_sla_tracking_sla_due_at", "sla_due_at"),
         Index("ix_sla_tracking_sla_status", "sla_status"),
     )
+
+    @property
+    def status(self):
+        return self.sla_status
+
+    @status.setter
+    def status(self, value):
+        self.sla_status = value
+
+    @property
+    def breached(self):
+        return self.breach_detected
+
+    @breached.setter
+    def breached(self, value):
+        self.breach_detected = value
+
+
+# Backward-compatible alias kept for older imports/tests.
+SLATracking = SlaTracking

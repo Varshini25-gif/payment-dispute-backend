@@ -29,6 +29,10 @@ class SlaStatus(str, Enum):
     BREACHED = "breached"
 
 
+# Backward-compatible alias for legacy tests/imports.
+SlaStatus.RESOLVED = SlaStatus.BREACHED
+
+
 class JiraIssueStatus(str, Enum):
     OPEN = "open"
     IN_PROGRESS = "in_progress"

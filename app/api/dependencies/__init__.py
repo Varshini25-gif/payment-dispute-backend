@@ -14,7 +14,7 @@ from app.core.permissions import PermissionChecker, Permission, Role
 
 logger = logging.getLogger(__name__)
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 optional_security = HTTPBearer(auto_error=False)
 
 
@@ -43,7 +43,7 @@ class CurrentUser:
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)
 ) -> CurrentUser:
     """
     Get the current authenticated user from the JWT token.
@@ -57,6 +57,12 @@ async def get_current_user(
     Raises:
         HTTPException: If authentication fails
     """
+    if not credentials:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authenticated",
+        )
+
     token = credentials.credentials
     
     try:

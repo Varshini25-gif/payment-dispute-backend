@@ -89,6 +89,9 @@ class JiraClient:
     def create_issue(self, fields: Dict[str, Any]) -> Dict[str, Any]:
         return self._request("POST", "/rest/api/3/issue", json_body={"fields": fields})
 
+    def get_issue(self, issue_key: str) -> Dict[str, Any]:
+        return self._request("GET", f"/rest/api/3/issue/{issue_key}")
+
     def transition_issue(
         self,
         issue_key: str,

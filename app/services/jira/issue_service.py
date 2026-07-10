@@ -20,6 +20,7 @@ class JiraIssueService:
         dispute_type = getattr(dispute, "type", "other") or "other"
         summary = f"Dispute {getattr(dispute, 'external_id', 'UNKNOWN')} - {dispute_type}"
         description = (
+            f"External ID: {getattr(dispute, 'external_id', 'UNKNOWN')}\n"
             f"Customer: {getattr(dispute, 'customer_id', 'unknown')}\n"
             f"Amount: {amount}\n"
             f"Reason: {getattr(dispute, 'reason', 'No reason provided')}"

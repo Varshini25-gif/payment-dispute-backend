@@ -16,7 +16,16 @@ logger = logging.getLogger("app.workers.routing_worker")
 class RoutingWorker:
     """Worker that retries failed route dispatch attempts and keeps route status up to date."""
 
+    def __init__(self) -> None:
+        self.status = "idle"
+        self.last_run = None
+
+    def run(self) -> None:
+        self.retry_and_sync_routes()
+
     def retry_and_sync_routes(self) -> None:
+        self.status = "running"
+        self.last_run = datetime.now(timezone.utc)
         logger.info("Starting routing worker job")
 
         now = datetime.now(timezone.utc)
@@ -83,3 +92,4 @@ class RoutingWorker:
             retry_count,
             resynced_count,
         )
+        self.status = "idle"

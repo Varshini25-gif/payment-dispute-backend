@@ -17,6 +17,12 @@ logger = logging.getLogger("app.workers.sync_worker")
 class StaleDisputeScanner:
     """Worker that identifies stale disputes and escalates or re-routes them."""
 
+    def run(self) -> None:
+        self.scan_stale_disputes()
+
+    def sync(self) -> None:
+        self.scan_stale_disputes()
+
     def scan_stale_disputes(self) -> None:
         logger.info("Starting stale dispute scanner job")
 
@@ -47,3 +53,8 @@ class StaleDisputeScanner:
                     logger.exception("Failed to process stale dispute=%s", dispute.external_id)
 
         logger.info("Stale dispute scanner completed. scanned=%d", scanned)
+
+
+# Backward-compatible alias kept for older imports/tests.
+class SyncWorker(StaleDisputeScanner):
+    pass

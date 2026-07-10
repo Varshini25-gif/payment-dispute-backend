@@ -11,6 +11,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.api.dependencies import CurrentUser, get_current_user
 from app.database.models import Dispute
 from app.database.models.enums import DisputeStatus, DisputeType
 from app.database.session import get_db
@@ -88,6 +89,7 @@ def _apply_filters(
 @router.post("/disputes", response_model=DisputeResponse, status_code=status.HTTP_201_CREATED)
 async def create_dispute(
     dispute_in: DisputeCreate,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Dispute:
     dispute = Dispute(**dispute_in.model_dump())
@@ -118,6 +120,7 @@ async def list_disputes(
     max_amount: Optional[Decimal] = Query(None, ge=0),
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> DisputeListResponse:
     if min_amount is not None and max_amount is not None and min_amount > max_amount:
@@ -141,7 +144,11 @@ async def list_disputes(
 
 
 @router.get("/disputes/{dispute_id}", response_model=DisputeResponse)
-async def get_dispute(dispute_id: UUID, db: Session = Depends(get_db)) -> Dispute:
+async def get_dispute(
+    dispute_id: UUID,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Dispute:
     dispute = db.get(Dispute, dispute_id)
     if dispute is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dispute not found.")
@@ -149,9 +156,11 @@ async def get_dispute(dispute_id: UUID, db: Session = Depends(get_db)) -> Disput
 
 
 @router.put("/disputes/{dispute_id}", response_model=DisputeResponse)
+@router.patch("/disputes/{dispute_id}", response_model=DisputeResponse)
 async def update_dispute(
     dispute_id: UUID,
     dispute_in: DisputeUpdate,
+    current_user: CurrentUser = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> Dispute:
     dispute = db.get(Dispute, dispute_id)
@@ -179,7 +188,11 @@ async def update_dispute(
 
 
 @router.delete("/disputes/{dispute_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_dispute(dispute_id: UUID, db: Session = Depends(get_db)) -> Response:
+async def delete_dispute(
+    dispute_id: UUID,
+    current_user: CurrentUser = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Response:
     dispute = db.get(Dispute, dispute_id)
     if dispute is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Dispute not found.")

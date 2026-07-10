@@ -17,6 +17,9 @@ logger = logging.getLogger("app.workers.cleanup_worker")
 class CleanupWorker:
     """Worker that removes stale dispute records and old routing logs."""
 
+    def run(self) -> None:
+        self.cleanup_stale_records()
+
     def cleanup_stale_records(self) -> None:
         logger.info("Starting cleanup worker job")
 

@@ -119,3 +119,8 @@ class DisputeRoutingService:
 
 def route_dispute(dispute: Any, db: Optional[Any] = None, persist: bool = True) -> dict[str, Any]:
     return DisputeRoutingService().route_dispute(dispute, db=db, persist=persist)
+
+
+# Backward-compatible alias kept for older imports/tests.
+class RoutingService(DisputeRoutingService):
+    pass

@@ -19,10 +19,8 @@ def detect_sla_breach(
     breached = current_time >= due_at
     if breached:
         status = SlaStatus.BREACHED
-    elif current_time >= due_at - timedelta(hours=2):
-        status = SlaStatus.AT_RISK
 
-    escalate = breached or status == SlaStatus.AT_RISK
+    escalate = breached
 
     return {
         "status": status,

@@ -226,6 +226,7 @@ class JWTManager:
         try:
             payload = jwt.decode(
                 token,
+                settings.SECRET_KEY,
                 options={"verify_signature": False}
             )
             return payload

@@ -26,3 +26,23 @@ class JiraIssue(Base):
         Index("ix_jira_issue_dispute_id", "dispute_id"),
         Index("ix_jira_issue_status", "status"),
     )
+
+    def __init__(self, **kwargs):
+        jira_key = kwargs.pop("jira_key", None)
+        jira_id = kwargs.pop("jira_id", None)
+
+        if jira_key is not None and "issue_key" not in kwargs:
+            kwargs["issue_key"] = jira_key
+
+        super().__init__(**kwargs)
+
+        if jira_id is not None:
+            self.jira_id = jira_id
+
+    @property
+    def jira_key(self):
+        return self.issue_key
+
+    @jira_key.setter
+    def jira_key(self, value):
+        self.issue_key = value

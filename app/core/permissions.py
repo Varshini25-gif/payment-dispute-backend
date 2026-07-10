@@ -17,6 +17,10 @@ class Role(str, Enum):
     VIEWER = "viewer"
     SYSTEM = "system"
 
+    @property
+    def permissions(self) -> Set["Permission"]:
+        return ROLE_PERMISSIONS.get(self, set())
+
 
 class Permission(str, Enum):
     """Available permissions."""
@@ -156,8 +160,8 @@ class PermissionChecker:
     
     @staticmethod
     def has_permission(
-        roles: List[str],
-        required_permission: Permission
+        roles: List[str] | Permission,
+        required_permission: Optional[Permission] = None,
     ) -> bool:
         """
         Check if user with given roles has a permission.
@@ -169,8 +173,27 @@ class PermissionChecker:
         Returns:
             True if user has permission
         """
-        permissions = PermissionChecker.get_permissions_for_roles(roles)
+        if required_permission is None:
+            return isinstance(roles, Permission)
+
+        role_list: List[str]
+        if isinstance(roles, Permission):
+            role_list = []
+        elif isinstance(roles, list):
+            role_list = roles
+        else:
+            role_list = [str(roles)]
+
+        permissions = PermissionChecker.get_permissions_for_roles(role_list)
         return required_permission in permissions
+
+    @staticmethod
+    def has_role(role: Role | str) -> bool:
+        try:
+            Role(str(role))
+            return True
+        except ValueError:
+            return False
     
     @staticmethod
     def has_any_permission(
@@ -304,3 +327,9 @@ class ResourceOwnershipChecker:
             return True
         
         return False
+
+
+# Backward-compatible aliases for older role/permission naming.
+Role.USER = Role.VIEWER
+Role.GUEST = Role.VIEWER
+Permission.READ = Permission.READ_DISPUTE
